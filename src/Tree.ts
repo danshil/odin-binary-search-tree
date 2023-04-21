@@ -60,43 +60,37 @@ export default class Tree {
     }
   }
 
-  delete(value: number) {
-    if (!this.root) {
-      console.warn('@delete(): no root present');
-      return;
+  delete(value: number, root = this.root) {
+    if (!root) {
+      return root;
     }
-    let curr = this.root;
-    let prev = null;
-    let isLeft = true;
-    while (curr) {
-      if (curr.data > value) {
-        prev = curr;
-        curr = curr.left;
-        isLeft = true;
-      } else if (curr.data < value) {
-        prev = curr;
-        curr = curr.right;
-        isLeft = false;
-      } else {
-        break;
-      }
+    if (value < root.data) {
+      root.left = this.delete(value, root.left);
+    } else if (value > root.data) {
+      root.right = this.delete(value, root.right);
+    } else {
+      if (!root.left) return root.right;
+      else if (!root.right) return root.left;
+      root.data = minValue(root.right);
+      root.right = this.delete(root.data, root.right);
     }
-    if (curr?.data !== value) {
-      return;
-    }
-    // node is a leaf
-    if (curr.left === null && curr.right === null) {
-      isLeft ? (prev.left = null) : (prev.right = null);
-    }
-    // node has one child
-    else if (curr.left === null) {
-      isLeft ? (prev.left = curr.right) : (prev.right = curr.right);
-    } else if (curr.right === null) {
-      isLeft ? (prev.left = curr.left) : (prev.right = curr.left);
-    }
-    // node has two children
+    return root;
 
-    console.log({ value, curr, prev, isLeft });
+    function minValue(root: Node) {
+      let minv = root.data;
+      while (root.left != null) {
+        minv = root.left.data;
+        root = root.left;
+      }
+      return minv;
+    }
+  }
+
+  find(value: number, root = this.root): Node {
+    if (!root) return null;
+    else if (root.data === value) return root;
+    else if (root.data < value) return this.find(value, root.right);
+    else if (root.data > value) return this.find(value, root.left);
   }
 
   static sortArray(array: Array<number>): Array<number> {
